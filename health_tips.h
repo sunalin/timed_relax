@@ -32,6 +32,7 @@ public:
         //this->setWindowOpacity(1);    // 半透明
         //setFixedSize(480, 320);
         setAttribute(Qt::WA_TranslucentBackground);
+        m_time_cnt = 5 * 60;
         startTimer(1000);   // 1-second timer
     }
     ~health_tips()
@@ -43,14 +44,13 @@ protected:
     void timerEvent(QTimerEvent *event)
     {
         Q_UNUSED(event);
-        static uint32_t cnt = 5 * 60;
-        if (cnt)
+        if (m_time_cnt)
         {
-            if (--cnt == 0)
+            if (--m_time_cnt == 0)
                 this->close();
             ui->num->setText(QString("%1:%2")
-                             .arg(cnt/60, 2, 10, QLatin1Char('0'))
-                             .arg(cnt%60, 2, 10, QLatin1Char('0')));
+                             .arg(m_time_cnt/60, 2, 10, QLatin1Char('0'))
+                             .arg(m_time_cnt%60, 2, 10, QLatin1Char('0')));
         }
     }
     void paintEvent(QPaintEvent *)
@@ -88,6 +88,7 @@ protected:
     }
     
 private:
+    uint32_t m_time_cnt;    /* 倒计时 */
     bool m_bPressed;
     QPoint m_point;
 
