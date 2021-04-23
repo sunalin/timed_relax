@@ -13,9 +13,10 @@ timed_relax::timed_relax(QWidget *parent)
     m_tip = NULL;
     m_timer_start = false;
 
-    ui->timer_minute->setRange(0, 9999);
-    ui->timer_minute->setSingleStep(10);
-    ui->timer_minute->setValue(50);
+    ui->timer_minute->setRange(0, 9999);    /* 时间范围 */
+    ui->timer_minute->setSingleStep(10);    /* 调节时间步进值 */
+    ui->timer_minute->setValue(50);         /* 默认定时时间 */
+    on_timer_start_clicked();               /* 打开软件后立即开始计时 */
 }
 
 timed_relax::~timed_relax()
