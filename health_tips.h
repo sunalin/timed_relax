@@ -26,11 +26,12 @@ public:
     {
         ui->setupUi(this);
 
+        ui->text->setText("<html><head/><body><p align=\"center\"><span style=\" font-size:20pt;\">Feel it and accept it.<br>Accept all of my life.</span></p></body></html>");
         this->setAttribute(Qt::WA_DeleteOnClose);// 通过new出来的窗口 close()时自动回收资源
         //this->setWindowModality(Qt::ApplicationModal);
         this->setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);   // 顶层窗口无标题
         //this->setWindowOpacity(1);    // 半透明
-        //setFixedSize(480, 320);
+        this->setFixedSize(350, 120);
         setAttribute(Qt::WA_TranslucentBackground);
         m_time_cnt = 5 * 60;
         startTimer(1000);   // 1-second timer
