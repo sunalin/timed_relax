@@ -2,7 +2,7 @@
 #define TIMED_RELAX_H
 
 #include <QWidget>
-#include "health_tips.h"
+#include "transparent.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class timed_relax; }
@@ -25,7 +25,7 @@ private slots:
     void on_timer_start_clicked();
     
 private:
-    health_tips*    m_tip;              /* 提示窗口 */
+    QWidget*        m_tip;              /* 提示窗口 */
     uint32_t        m_timer_cnt;        /* 计时 */
     uint32_t        m_timer_minute;     /* 定时分钟 */
     bool            m_timer_repeat;     /* 0单次 1重复 */

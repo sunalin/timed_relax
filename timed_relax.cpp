@@ -21,8 +21,7 @@ timed_relax::timed_relax(QWidget *parent)
 
 timed_relax::~timed_relax()
 {
-    if (m_tip)
-    {
+    if (m_tip) {
         m_tip->close();
         m_tip = NULL;
     }
@@ -31,14 +30,11 @@ timed_relax::~timed_relax()
 
 void timed_relax::ui_start(bool flag)
 {
-    if (flag == true)
-    {
+    if (flag == true) {
         ui->timer_minute->setEnabled(false);
         ui->timer_repeat->setEnabled(false);
         ui->timer_start->setText("停止");
-    }
-    else
-    {
+    } else {
         ui->timer_minute->setEnabled(true);
         ui->timer_repeat->setEnabled(true);
         ui->timer_start->setText("启动");
@@ -47,46 +43,29 @@ void timed_relax::ui_start(bool flag)
 
 void timed_relax::ui_create_tip(bool flag)
 {
-    if (m_tip)
+    if (m_tip) {
         m_tip->close();
+    }
     m_tip = NULL;
-    if (flag)
-    {
-        m_tip = new health_tips;
-        if (m_tip)
-        {
-            connect(m_tip, static_cast<void (QObject::*)(QObject* obj)>(&QObject::destroyed), this,
-                    [=](QObject* obj)
-                    {
-                        if (m_tip == (health_tips*)obj)
-                        {
-                            qDebug() << "子窗口销毁";
-                            m_tip = NULL;
-                        }
-                    });
-            m_tip->show();
-        }
+    if (flag) {
+        m_tip = new transparent(true, 5*60);
+        connect(m_tip, static_cast<void (QObject::*)(QObject*)>(&QObject::destroyed),
+                this,  [=](QObject*){m_tip = NULL; qDebug() << "提示窗口销毁";});
+        m_tip->show();
     }
 }
 
 void timed_relax::timerEvent(QTimerEvent *event)
 {
     Q_UNUSED(event);
-    //qDebug() << "Timer ID:" << event->timerId();
-
-    if (m_timer_start)
-    {
-        if (++m_timer_cnt >= m_timer_minute)
-        {
+    if (m_timer_start) {
+        if (++m_timer_cnt >= m_timer_minute) {
             qDebug() << "时间到";
             ui_create_tip(m_timer_start);
 
-            if (m_timer_repeat == true)
-            {
+            if (m_timer_repeat == true) {
                 m_timer_cnt = 0;
-            }
-            else
-            {
+            } else {
                 m_timer_start = false;
             }
             ui_start(m_timer_start);
@@ -101,13 +80,10 @@ void timed_relax::timerEvent(QTimerEvent *event)
 
 void timed_relax::on_timer_start_clicked()
 {
-    if (m_timer_start == true)
-    {
+    if (m_timer_start == true) {
         m_timer_start = false;
         ui_create_tip(m_timer_start);
-    }
-    else
-    {
+    } else {
         m_timer_cnt = 0;
         m_timer_minute = ui->timer_minute->text().toUInt();
         m_timer_repeat = (ui->timer_repeat->currentText()=="重复") ? true : false;

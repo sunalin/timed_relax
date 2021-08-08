@@ -20,11 +20,10 @@ SOURCES += \
     timed_relax.cpp
 
 HEADERS += \
-    health_tips.h \
-    timed_relax.h
+    timed_relax.h \
+    transparent.h
 
 FORMS += \
-    health_tips.ui \
     timed_relax.ui
 
 # Default rules for deployment.
