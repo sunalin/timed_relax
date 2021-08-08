@@ -19,7 +19,7 @@ public:
     void ui_create_tip(bool flag);
 
 protected:
-    void timerEvent(QTimerEvent *event);
+    void timerEvent(QTimerEvent*);
 
 private slots:
     void on_timer_start_clicked();

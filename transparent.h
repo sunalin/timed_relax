@@ -16,7 +16,11 @@ class transparent : public QWidget
     Q_OBJECT
     
 public:
-    explicit transparent(bool top = false, bool showtime = true, uint32_t timeout_close_win = 0, QWidget *parent = nullptr)
+    explicit transparent(bool top = false,
+                         bool enbreak = true,
+                         bool showtime = true,
+                         uint32_t timeout_close_win = 0,
+                         QWidget *parent = nullptr)
         : QWidget(parent)
         , m_timeout_close_win(timeout_close_win)
         , m_timeout_enbale_closebtn(5)
@@ -38,32 +42,45 @@ public:
         m_closebtn = new QPushButton("break");
         connect(m_closebtn, static_cast<void (QAbstractButton::*)(bool)>(&QAbstractButton::clicked),
                 this,       [=](bool){this->close();});  /* 按钮关闭整个窗口 */
-        m_closebtn->setFixedSize(150, 70);
-        m_closebtn->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';font-size:40px;color:#666666;}"
-                                  "QPushButton{border:2px groove gray;border-radius:10px;padding:2px 4px;}");
+        m_closebtn->setFixedSize(120, 60);
+        m_closebtn->setStyleSheet("QPushButton{font-family:'Microsoft YaHei';font-size:33px;color:#666666;}"
+                                  "QPushButton{border:1px groove gray;border-radius:10px;padding:2px 4px;}");
         m_closebtn->setEnabled(false);
+        m_closebtn->setVisible(enbreak);
 
         /* 时间lcd */
         m_lcd = new QLCDNumber;
         m_lcd->setFrameShape(QFrame::NoFrame);
         m_lcd->setFrameShadow(QFrame::Plain);
-        m_lcd->setSegmentStyle(QLCDNumber::Filled);
-        m_lcd->setStyleSheet("QLCDNumber{font-family:'Microsoft YaHei';font-size:40px;color:#666666;}");
+        m_lcd->setSegmentStyle(QLCDNumber::Flat);
+        m_lcd->setFixedSize(90, 25);
+        m_lcd->setStyleSheet("QLCDNumber{font-family:'Microsoft YaHei';font-size:120px;color:#666666;}");
         m_lcd->display(" ");
         m_lcd->setVisible(showtime);
 
         /* 布局 */
-        QVBoxLayout* vbox = new QVBoxLayout;
-        vbox->addItem(new QSpacerItem(20, 97, QSizePolicy::Minimum, QSizePolicy::Expanding));
-        vbox->addWidget(m_closebtn);
-        vbox->addWidget(m_lcd);
-        vbox->addItem(new QSpacerItem(20, 97, QSizePolicy::Minimum, QSizePolicy::Expanding));
+        QHBoxLayout* h_btn = new QHBoxLayout;
+        h_btn->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        h_btn->addWidget(m_closebtn);
+        h_btn->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        h_btn->setContentsMargins(0, 0, 0, 0);
+        h_btn->setSpacing(0);
 
-        QHBoxLayout* hbox = new QHBoxLayout;
-        hbox->addItem(new QSpacerItem(97, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
-        hbox->addLayout(vbox);
-        hbox->addItem(new QSpacerItem(97, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
-        this->setLayout(hbox);
+        QHBoxLayout* h_lcd = new QHBoxLayout;
+        h_lcd->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        h_lcd->addWidget(m_lcd);
+        h_lcd->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
+        h_lcd->setContentsMargins(0, 0, 0, 0);
+        h_lcd->setSpacing(0);
+
+        QVBoxLayout* vbox = new QVBoxLayout;
+        vbox->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
+        vbox->addLayout(h_btn);
+        vbox->addLayout(h_lcd);
+        vbox->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding));
+        vbox->setContentsMargins(0, 0, 0, 0);
+        vbox->setSpacing(0);
+        this->setLayout(vbox);
 
 
         this->showFullScreen();
@@ -94,7 +111,7 @@ protected:
         }
 
         if (m_lcd->isVisible()) {
-            m_lcd->display(QTime(0, 0, 0, 0).addSecs(m_timeout_close_win).toString("m:ss"));
+            m_lcd->display(QTime(0, 0, 0, 0).addSecs(m_timeout_close_win).toString("mm:ss"));
         }
     }
 

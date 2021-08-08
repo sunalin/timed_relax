@@ -8,14 +8,16 @@ timed_relax::timed_relax(QWidget *parent)
 {
     ui->setupUi(this);
     this->setAttribute(Qt::WA_DeleteOnClose);//new的窗口 close()时自动回收资源
+    Qt::WindowFlags flags = Qt::Widget;
+    flags |= Qt::FramelessWindowHint;           /* 窗口无标题栏 */
+    this->setWindowFlags(flags);
+    connect(ui->timer_close, static_cast<void (QAbstractButton::*)(bool)>(&QAbstractButton::clicked),
+            this,            [=](bool){this->close();});  /* 按钮整个窗口 */
 
     startTimer(1000);   // 1-second timer
     m_tip = NULL;
     m_timer_start = false;
 
-    ui->timer_minute->setRange(0, 9999);    /* 时间范围 */
-    ui->timer_minute->setSingleStep(10);    /* 调节时间步进值 */
-    ui->timer_minute->setValue(50);         /* 默认定时时间 */
     on_timer_start_clicked();               /* 打开软件后立即开始计时 */
 }
 
@@ -31,13 +33,15 @@ timed_relax::~timed_relax()
 void timed_relax::ui_start(bool flag)
 {
     if (flag == true) {
+        ui->tip->setEnabled(false);
         ui->timer_minute->setEnabled(false);
         ui->timer_repeat->setEnabled(false);
         ui->timer_start->setText("停止");
     } else {
+        ui->tip->setEnabled(true);
         ui->timer_minute->setEnabled(true);
         ui->timer_repeat->setEnabled(true);
-        ui->timer_start->setText("启动");
+        ui->timer_start->setText("计时");
     }
 }
 
@@ -48,16 +52,18 @@ void timed_relax::ui_create_tip(bool flag)
     }
     m_tip = NULL;
     if (flag) {
-        m_tip = new transparent(true, true, 5*60);
+        m_tip = new transparent(ui->tip_top->isChecked(),
+                                !ui->tip_break->isChecked(),
+                                ui->tip_showtime->isChecked(),
+                                ui->tip_timeout->currentText().toUInt() * 60);
         connect(m_tip, static_cast<void (QObject::*)(QObject*)>(&QObject::destroyed),
-                this,  [=](QObject*){m_tip = NULL; qDebug() << "提示窗口销毁";});
+                this,  [=](QObject* obj){if (obj == m_tip) m_tip = NULL; qDebug() << "提示窗口销毁";});
         m_tip->show();
     }
 }
 
-void timed_relax::timerEvent(QTimerEvent *event)
+void timed_relax::timerEvent(QTimerEvent*)
 {
-    Q_UNUSED(event);
     if (m_timer_start) {
         if (++m_timer_cnt >= m_timer_minute) {
             qDebug() << "时间到";
@@ -70,11 +76,7 @@ void timed_relax::timerEvent(QTimerEvent *event)
             }
             ui_start(m_timer_start);
         }
-        ui->timer_text->setText(QString("%1天 %2:%3:%4")
-            .arg((m_timer_minute - m_timer_cnt)/(24*60*60))
-            .arg((m_timer_minute - m_timer_cnt)%(24*60*60)/(1*60*60),    2, 10, QLatin1Char('0'))
-            .arg((m_timer_minute - m_timer_cnt)%(24*60*60)%(1*60*60)/60, 2, 10, QLatin1Char('0'))
-            .arg((m_timer_minute - m_timer_cnt)%(24*60*60)%(1*60*60)%60, 2, 10, QLatin1Char('0')));
+        ui->timer_text->setText(QTime(0, 0, 0, 0).addSecs(m_timer_minute - m_timer_cnt).toString("剩余：mm:ss"));
     }
 }
 
@@ -85,8 +87,8 @@ void timed_relax::on_timer_start_clicked()
         ui_create_tip(m_timer_start);
     } else {
         m_timer_cnt = 0;
-        m_timer_minute = ui->timer_minute->text().toUInt();
-        m_timer_repeat = (ui->timer_repeat->currentText()=="重复") ? true : false;
+        m_timer_minute = ui->timer_minute->currentText().toUInt();
+        m_timer_repeat = ui->timer_repeat->isChecked();
         if (m_timer_minute == 0)
             m_timer_minute = 1;
         m_timer_minute *= 60;
