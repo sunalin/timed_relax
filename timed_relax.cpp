@@ -48,7 +48,7 @@ void timed_relax::ui_create_tip(bool flag)
     }
     m_tip = NULL;
     if (flag) {
-        m_tip = new transparent(true, 5*60);
+        m_tip = new transparent(true, true, 5*60);
         connect(m_tip, static_cast<void (QObject::*)(QObject*)>(&QObject::destroyed),
                 this,  [=](QObject*){m_tip = NULL; qDebug() << "提示窗口销毁";});
         m_tip->show();
