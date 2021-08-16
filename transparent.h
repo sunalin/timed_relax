@@ -9,7 +9,11 @@
 #include <QPushButton>
 #include <QLCDNumber>
 #include <QTime>
+#include <QDebug>
+#include <QEvent>
 
+
+#define BACKGROUND_CLICK_SECS       5   /* 每次切换窗口使背景n秒内可击 */
 
 class transparent : public QWidget
 {
@@ -24,6 +28,7 @@ public:
         : QWidget(parent)
         , m_timeout_close_win(timeout_close_win)
         , m_timeout_enbale_closebtn(5)
+        , m_background_click(BACKGROUND_CLICK_SECS)
     {
         this->setAttribute(Qt::WA_DeleteOnClose);// 通过new出来的窗口 close()时自动回收资源
         //this->setWindowModality(Qt::ApplicationModal);
@@ -83,6 +88,7 @@ public:
         this->setLayout(vbox);
 
 
+        this->installEventFilter(this);
         this->showFullScreen();
         this->startTimer(1000);   // 1-second timer
     }
@@ -93,10 +99,26 @@ public:
     }
 
 protected:
+    bool eventFilter(QObject* obj, QEvent* event)
+    {
+        if (obj == this) {
+            if (event->type() == QEvent::WindowActivate || event->type() == QEvent::WindowDeactivate) {
+                /* 窗口活动 */
+                /*if (m_background_click == 0)*/ {
+                    m_background_click = BACKGROUND_CLICK_SECS;
+                }
+                this->update();
+            }
+        }  
+        return QWidget::eventFilter(obj, event);
+    }
+
     void paintEvent(QPaintEvent*)
     {
         QPainter painter(this);
-        painter.fillRect(this->rect(), QColor(0, 0, 0, 1));  //QColor最后一个参数80代表背景的透明度
+        painter.fillRect(this->frameGeometry(), QColor(0, 0, 0, !m_background_click));  //QColor最后一个参数80代表背景的透明度
+        painter.fillRect(m_closebtn->frameGeometry(), QColor(0, 0, 0, 1));  //QColor最后一个参数80代表背景的透明度
+        painter.fillRect(m_lcd->frameGeometry(), QColor(0, 0, 0, 1));  //QColor最后一个参数80代表背景的透明度
     }
 
     void timerEvent(QTimerEvent*)
@@ -113,11 +135,19 @@ protected:
         if (m_lcd->isVisible()) {
             m_lcd->display(QTime(0, 0, 0, 0).addSecs(m_timeout_close_win).toString("mm:ss"));
         }
+        
+        if (m_background_click) {
+            if (--m_background_click == 0) {
+                //this->activateWindow();
+            }
+            this->update();
+        }
     }
 
 private:
     uint32_t        m_timeout_close_win;        /* (秒)超时自动关闭窗口, 初始为0表示不自动关闭 */
     uint32_t        m_timeout_enbale_closebtn;  /* (秒)超时后关闭按钮才能按 */
+    uint32_t        m_background_click;         /* 0: 在透明背景下无法点击背后窗口 */
     QPushButton*    m_closebtn;                 /* 关闭按钮 */
     QLCDNumber*     m_lcd;                      /* 时间lcd */
 };

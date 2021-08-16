@@ -58,6 +58,9 @@
       </property>
       <item>
        <widget class="QCheckBox" name="tip_top">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>置顶</string>
         </property>
@@ -68,6 +71,9 @@
       </item>
       <item>
        <widget class="QCheckBox" name="tip_break">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string>强制</string>
         </property>
